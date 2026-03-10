@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Connect to Alpha</title>
+  <style>
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --border: #2a2d3a;
+      --text: #e8e9ed;
+      --text-secondary: #8b8d97;
+      --accent: #4f8cff;
+      --accent-hover: #3d7aee;
+      --success: #34c759;
+      --warning: #ff9f0a;
+      --error: #ff453a;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 0 20px;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      max-width: 400px;
+      width: 100%;
+      margin-top: 60px;
+    }
+
+    .logo {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .logo h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .logo p {
+      color: var(--text-secondary);
+      font-size: 15px;
+      margin-top: 4px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 24px;
+      margin-bottom: 16px;
+    }
+
+    .card h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .card p {
+      color: var(--text-secondary);
+      font-size: 15px;
+      line-height: 1.5;
+      margin-bottom: 16px;
+    }
+
+    .card p:last-child { margin-bottom: 0; }
+
+    .steps {
+      list-style: none;
+      margin-bottom: 20px;
+    }
+
+    .steps li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      font-size: 15px;
+      line-height: 1.4;
+      color: var(--text-secondary);
+    }
+
+    .steps li .num {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      text-align: center;
+      transition: background 0.15s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .btn-primary:hover { background: var(--accent-hover); }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--border);
+      margin-top: 10px;
+    }
+
+    .btn-secondary:hover { background: rgba(79, 140, 255, 0.08); }
+
+    .btn-success {
+      background: var(--success);
+      color: #fff;
+    }
+
+    .fallback {
+      text-align: center;
+      padding-top: 8px;
+    }
+
+    .fallback p {
+      color: var(--text-secondary);
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .short-code {
+      font-family: 'SF Mono', 'Menlo', monospace;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      color: var(--text);
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 16px;
+    }
+
+    .status-badge.created {
+      background: rgba(79, 140, 255, 0.15);
+      color: var(--accent);
+    }
+
+    .status-badge.app_linked {
+      background: rgba(255, 159, 10, 0.15);
+      color: var(--warning);
+    }
+
+    .status-badge.connected {
+      background: rgba(52, 199, 89, 0.15);
+      color: var(--success);
+    }
+
+    .status-badge.expired {
+      background: rgba(255, 69, 58, 0.15);
+      color: var(--error);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .user-masked {
+      color: var(--text-secondary);
+      font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    .connected-check {
+      font-size: 48px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .android-notice {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    .android-notice h2 {
+      margin-bottom: 12px;
+    }
+
+    #loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+
+    #error-view {
+      text-align: center;
+      padding: 40px 20px;
+    }
+
+    #error-view h2 {
+      color: var(--error);
+      margin-bottom: 12px;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f5f5f7;
+        --surface: #ffffff;
+        --border: #d2d2d7;
+        --text: #1d1d1f;
+        --text-secondary: #6e6e73;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <h1>Alpha</h1>
+      <p>Your health coach</p>
+    </div>
+
+    <!-- Loading state -->
+    <div id="loading">
+      <p>Loading...</p>
+    </div>
+
+    <!-- Error state -->
+    <div id="error-view" class="hidden">
+      <h2>Link not found</h2>
+      <p>This link may have expired or is invalid. Ask your coach for a new connection link.</p>
+    </div>
+
+    <!-- iOS: session created (not yet installed / needs to open app) -->
+    <div id="ios-install" class="hidden">
+      <div class="card">
+        <div id="install-status-badge"></div>
+        <p class="user-masked" id="install-user"></p>
+        <h2>Install Alpha</h2>
+        <ol class="steps">
+          <li>
+            <span class="num">1</span>
+            <span>Tap <strong>"Install via TestFlight"</strong> below</span>
+          </li>
+          <li>
+            <span class="num">2</span>
+            <span>If you don't have TestFlight, install it first (free from the App Store)</span>
+          </li>
+          <li>
+            <span class="num">3</span>
+            <span>After installing, come back here and tap <strong>"Open Alpha"</strong></span>
+          </li>
+        </ol>
+        <a id="testflight-btn" class="btn btn-primary" href="#" target="_blank" rel="noopener">Install via TestFlight</a>
+        <a id="open-app-btn" class="btn btn-secondary" href="#">Open Alpha</a>
+      </div>
+      <div class="fallback">
+        <p>Having trouble? Enter this code in the app:</p>
+        <div class="short-code" id="install-code"></div>
+      </div>
+    </div>
+
+    <!-- iOS: app linked, waiting for first sync -->
+    <div id="ios-linking" class="hidden">
+      <div class="card">
+        <div id="linking-status-badge"></div>
+        <h2>Connecting...</h2>
+        <p>The Alpha app is connecting to your health data. This should only take a moment.</p>
+      </div>
+    </div>
+
+    <!-- Connected state -->
+    <div id="connected-view" class="hidden">
+      <div class="card">
+        <div class="connected-check">&#10003;</div>
+        <h2 style="text-align:center">Connected</h2>
+        <p style="text-align:center">Your health data is now syncing with Alpha. You can go back to your coach.</p>
+        <a id="back-to-coach" class="btn btn-success" href="https://wa.me/18506730407">Back to your coach</a>
+      </div>
+    </div>
+
+    <!-- Expired state -->
+    <div id="expired-view" class="hidden">
+      <div class="card">
+        <span class="status-badge expired"><span class="status-dot"></span>Expired</span>
+        <h2>Link expired</h2>
+        <p>This connection link has expired. Ask Alpha for a new one in your chat.</p>
+        <a class="btn btn-primary" href="https://wa.me/18506730407">Back to your coach</a>
+      </div>
+    </div>
+
+    <!-- Android: not supported yet -->
+    <div id="android-view" class="hidden">
+      <div class="card android-notice">
+        <h2>Coming soon</h2>
+        <p>Health data connection is coming soon for Android. Alpha will let you know when it's ready.</p>
+        <a class="btn btn-primary" href="https://wa.me/18506730407" style="margin-top:20px">Back to your coach</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      // ── Config ──────────────────────────────────────────────────────
+      // v1 simplification: no install detection or auto-open. User always
+      // sees install instructions + explicit "Open Alpha" button. The plan's
+      // richer journey (detect installed → open directly) is deferred.
+      // Full sign-off blocked on: real TestFlight URL + hosted end-to-end validation.
+      var API_BASE = 'https://proactive-passion-production.up.railway.app';
+      var TESTFLIGHT_URL = ''; // TODO: set when TestFlight build is uploaded
+      var UNIVERSAL_LINK_BASE = 'https://open.askalpha.co'; // Matches AASA config on open.askalpha.co
+      var POLL_INTERVAL_MS = 4000;
+      var MAX_POLLS = 150; // 10 minutes at 4s intervals
+
+      // ── DOM refs ────────────────────────────────────────────────────
+      var $loading = document.getElementById('loading');
+      var $error = document.getElementById('error-view');
+      var $iosInstall = document.getElementById('ios-install');
+      var $iosLinking = document.getElementById('ios-linking');
+      var $connected = document.getElementById('connected-view');
+      var $expired = document.getElementById('expired-view');
+      var $android = document.getElementById('android-view');
+
+      // ── Helpers ─────────────────────────────────────────────────────
+
+      function extractToken() {
+        // URL format: /connect/{token} or /connect/index.html?token={token}
+        var path = window.location.pathname;
+        var parts = path.split('/').filter(Boolean);
+        var connectIdx = parts.indexOf('connect');
+        if (connectIdx >= 0 && parts[connectIdx + 1] && parts[connectIdx + 1] !== 'index.html') {
+          return parts[connectIdx + 1];
+        }
+        // Fallback: query param
+        var params = new URLSearchParams(window.location.search);
+        return params.get('token');
+      }
+
+      function isIOS() {
+        return /iPhone|iPad|iPod/.test(navigator.userAgent);
+      }
+
+      function isAndroid() {
+        return /Android/.test(navigator.userAgent);
+      }
+
+      function showView(el) {
+        [$loading, $error, $iosInstall, $iosLinking, $connected, $expired, $android].forEach(function (v) {
+          v.classList.add('hidden');
+        });
+        el.classList.remove('hidden');
+      }
+
+      function makeStatusBadge(status) {
+        var labels = {
+          created: 'Waiting for app',
+          app_linked: 'App linked',
+          connected: 'Connected',
+          expired: 'Expired'
+        };
+        return '<span class="status-badge ' + status + '"><span class="status-dot"></span>' + (labels[status] || status) + '</span>';
+      }
+
+      // ── Fetch session ───────────────────────────────────────────────
+
+      function fetchSession(token) {
+        return fetch(API_BASE + '/health/pairing-sessions/' + encodeURIComponent(token), {
+          headers: { 'Accept': 'application/json' }
+        }).then(function (res) {
+          if (res.status === 404) return null;
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          return res.json();
+        });
+      }
+
+      // ── Render ──────────────────────────────────────────────────────
+
+      function render(session, token) {
+        if (!session) {
+          showView($error);
+          return;
+        }
+
+        var status = session.status;
+
+        if (status === 'expired') {
+          showView($expired);
+          return;
+        }
+
+        if (status === 'connected') {
+          showView($connected);
+          return;
+        }
+
+        // Android check
+        if (isAndroid()) {
+          showView($android);
+          return;
+        }
+
+        if (status === 'app_linked') {
+          showView($iosLinking);
+          document.getElementById('linking-status-badge').innerHTML = makeStatusBadge(status);
+          return;
+        }
+
+        // Default: created — show install/open flow
+        showView($iosInstall);
+        document.getElementById('install-status-badge').innerHTML = makeStatusBadge(status);
+
+        if (session.userId) {
+          document.getElementById('install-user').textContent = 'Account: ' + session.userId;
+        }
+
+        if (session.shortCode) {
+          document.getElementById('install-code').textContent = session.shortCode;
+        }
+
+        // TestFlight button
+        var tfBtn = document.getElementById('testflight-btn');
+        if (TESTFLIGHT_URL) {
+          tfBtn.href = TESTFLIGHT_URL;
+        } else {
+          tfBtn.style.opacity = '0.5';
+          tfBtn.style.pointerEvents = 'none';
+          tfBtn.textContent = 'TestFlight link coming soon';
+        }
+
+        // Open Alpha button (universal link with token)
+        var openBtn = document.getElementById('open-app-btn');
+        if (UNIVERSAL_LINK_BASE) {
+          openBtn.href = UNIVERSAL_LINK_BASE + '/connect/' + token;
+        } else {
+          // No silent fallback — a misconfigured UNIVERSAL_LINK_BASE would
+          // redirect to a non-functional URL. Disable the button instead.
+          openBtn.style.opacity = '0.5';
+          openBtn.style.pointerEvents = 'none';
+          openBtn.textContent = 'Configuration incomplete — contact support';
+        }
+      }
+
+      // ── Poll ────────────────────────────────────────────────────────
+
+      function startPolling(token) {
+        var pollCount = 0;
+
+        function poll() {
+          if (pollCount >= MAX_POLLS) return;
+          pollCount++;
+
+          fetchSession(token).then(function (session) {
+            if (!session) return;
+
+            var status = session.status;
+            render(session, token);
+
+            // Stop polling when terminal state reached
+            if (status === 'connected' || status === 'expired') return;
+
+            setTimeout(poll, POLL_INTERVAL_MS);
+          }).catch(function () {
+            // Network error — retry
+            setTimeout(poll, POLL_INTERVAL_MS * 2);
+          });
+        }
+
+        setTimeout(poll, POLL_INTERVAL_MS);
+      }
+
+      // ── Init ────────────────────────────────────────────────────────
+
+      var token = extractToken();
+      if (!token) {
+        showView($error);
+        return;
+      }
+
+      fetchSession(token).then(function (session) {
+        render(session, token);
+        startPolling(token);
+      }).catch(function () {
+        showView($error);
+      });
+    })();
+  </script>
+</body>
+</html>
