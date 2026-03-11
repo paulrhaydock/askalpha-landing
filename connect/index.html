@@ -267,12 +267,12 @@
       <p>This link may have expired or is invalid. Ask your coach for a new connection link.</p>
     </div>
 
-    <!-- iOS: session created (not yet installed / needs to open app) -->
+    <!-- iOS: session created (install-first, app-led recovery) -->
     <div id="ios-install" class="hidden">
       <div class="card">
         <div id="install-status-badge"></div>
         <p class="user-masked" id="install-user"></p>
-        <h2>Install Alpha</h2>
+        <h2>Install Ask Alpha</h2>
         <ol class="steps">
           <li>
             <span class="num">1</span>
@@ -284,15 +284,13 @@
           </li>
           <li>
             <span class="num">3</span>
-            <span>After installing, come back here and tap <strong>"Open Alpha"</strong></span>
+            <span>Open Ask Alpha from TestFlight, then enter the same WhatsApp number you use with your coach</span>
           </li>
         </ol>
+        <p style="color: var(--text-secondary); margin: 0 0 18px;">
+          Apple only shares Apple Health from inside the app, so Ask Alpha needs the app installed before it can sync your data back to your coach.
+        </p>
         <a id="testflight-btn" class="btn btn-primary" href="#" target="_blank" rel="noopener">Install via TestFlight</a>
-        <a id="open-app-btn" class="btn btn-secondary" href="#">Open Alpha</a>
-      </div>
-      <div class="fallback">
-        <p>Having trouble? Enter this code in the app:</p>
-        <div class="short-code" id="install-code"></div>
       </div>
     </div>
 
@@ -340,13 +338,11 @@
       'use strict';
 
       // ── Config ──────────────────────────────────────────────────────
-      // v1 simplification: no install detection or auto-open. User always
-      // sees install instructions + explicit "Open Alpha" button. The plan's
-      // richer journey (detect installed → open directly) is deferred.
+      // Install-first flow: users land here from WhatsApp, install via
+      // TestFlight, then recover in-app with their WhatsApp number.
       // Full sign-off blocked on: real TestFlight URL + hosted end-to-end validation.
       var API_BASE = 'https://proactive-passion-production.up.railway.app';
       var TESTFLIGHT_URL = 'https://testflight.apple.com/join/tkymy1PA';
-      var UNIVERSAL_LINK_BASE = 'https://open.askalpha.co'; // Matches AASA config on open.askalpha.co
       var POLL_INTERVAL_MS = 4000;
       var MAX_POLLS = 150; // 10 minutes at 4s intervals
 
@@ -391,8 +387,8 @@
 
       function makeStatusBadge(status) {
         var labels = {
-          created: 'Waiting for app',
-          app_linked: 'App linked',
+          created: 'Ready to install',
+          app_linked: 'Connecting in app',
           connected: 'Connected',
           expired: 'Expired'
         };
@@ -451,10 +447,6 @@
           document.getElementById('install-user').textContent = 'Account: ' + session.userId;
         }
 
-        if (session.shortCode) {
-          document.getElementById('install-code').textContent = session.shortCode;
-        }
-
         // TestFlight button
         var tfBtn = document.getElementById('testflight-btn');
         if (TESTFLIGHT_URL) {
@@ -463,18 +455,6 @@
           tfBtn.style.opacity = '0.5';
           tfBtn.style.pointerEvents = 'none';
           tfBtn.textContent = 'TestFlight link coming soon';
-        }
-
-        // Open Alpha button (universal link with token)
-        var openBtn = document.getElementById('open-app-btn');
-        if (UNIVERSAL_LINK_BASE) {
-          openBtn.href = UNIVERSAL_LINK_BASE + '/connect/' + token;
-        } else {
-          // No silent fallback — a misconfigured UNIVERSAL_LINK_BASE would
-          // redirect to a non-functional URL. Disable the button instead.
-          openBtn.style.opacity = '0.5';
-          openBtn.style.pointerEvents = 'none';
-          openBtn.textContent = 'Configuration incomplete — contact support';
         }
       }
 
